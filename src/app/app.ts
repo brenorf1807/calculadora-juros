@@ -14,5 +14,6 @@ export class App {
     { path: '/financiamento', label: 'Financiamento', exact: false },
     { path: '/salario', label: 'Salário Líquido', exact: false },
     { path: '/ferias', label: 'Férias', exact: false },
+    { path: '/mes-de-ferias', label: 'Mês de Férias', exact: false },
   ];
 }

@@ -42,6 +42,12 @@ export class HomePage {
       route: '/ferias',
     },
     {
+      title: 'Mês de Férias',
+      description:
+        'Salário + férias do mesmo mês com INSS e IRRF calculados juntos, respeitando um único teto do INSS.',
+      route: '/mes-de-ferias',
+    },
+    {
       title: 'Folha de Pagamento Completa',
       description: 'Cálculo de FGTS e demais encargos da folha de pagamento.',
       comingSoon: true,

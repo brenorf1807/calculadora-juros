@@ -8,6 +8,7 @@ Calculadoras disponíveis:
 - **Financiamento (Tabela Price ou SAC)** — parcelas e tabela de amortização, com as duas modalidades.
 - **Salário Líquido** — desconto de INSS e IRRF a partir do salário bruto, com gráfico de pizza da distribuição.
 - **Férias** — valor líquido das férias (com 1/3 constitucional) e adiantamento da 1ª parcela do 13º salário.
+- **Mês de Férias** — une salário e férias do mesmo mês, calculando INSS e IRRF uma única vez sobre o total (respeitando um único teto do INSS e uma única dedução por dependente) — evita o erro comum de somar as calculadoras de Salário Líquido e Férias separadas.
 
 A arquitetura foi pensada para crescer: novos módulos (ex.: folha de pagamento completa com FGTS) podem ser adicionados sem refatorar o que já existe.
 
@@ -62,7 +63,8 @@ src/app/
     compound-interest/  # calculadora de juros compostos
     financing/           # calculadora de financiamento (Tabela Price/SAC)
     payroll/             # calculadora de salário líquido (INSS/IRRF)
-    vacation/            # calculadora de férias (INSS/IRRF + adiantamento do 13º)
+    vacation/            # calculadora de férias isoladas (INSS/IRRF + adiantamento do 13º)
+    vacation-payroll/    # calculadora "Mês de Férias" (salário + férias unificados)
 ```
 
 Cada calculadora segue o mesmo padrão:
@@ -107,7 +109,16 @@ depender de um serviço de terceiros pago nem inventar uma integração frágil,
    erro. As páginas de Salário Líquido e Férias mostram qual fonte está em uso.
 3. `src/app/core/tax/inss-irrf.calculations.ts` tem as funções puras de cálculo (`calculateINSS`,
    `calculateIRRF`), reaproveitadas por qualquer calculadora que precise de INSS/IRRF sobre um
-   rendimento — hoje salário e férias, no futuro também o 13º salário.
+   rendimento — hoje salário, férias e o mês de férias unificado, no futuro também o 13º salário.
+
+### Por que "Mês de Férias" existe além de Salário Líquido e Férias
+
+Somar o resultado das calculadoras de Salário Líquido e de Férias (usando o salário cheio em uma e o
+valor das férias na outra) parece razoável, mas está errado: o INSS tem um teto de contribuição por
+competência (mês), e a dedução por dependente do IRRF só pode ser usada uma vez. Calculando as duas
+"verbas" separadamente, cada uma aplica o teto/tabela do zero, o que distorce o desconto real. A
+calculadora `vacation-payroll` (`/mes-de-ferias`) resolve isso calculando o salário proporcional aos
+dias trabalhados + férias + 1/3 como um único total, e aplicando INSS e IRRF uma única vez sobre ele.
 
 Quando o governo publicar novos valores (o que costuma acontecer uma vez por ano), basta atualizar os
 dois arquivos acima com os novos números — nenhuma lógica de cálculo precisa mudar. Se um dia surgir

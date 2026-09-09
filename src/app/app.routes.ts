@@ -24,6 +24,11 @@ export const routes: Routes = [
     path: 'ferias',
     loadChildren: () => import('./features/vacation/vacation.routes').then((m) => m.VACATION_ROUTES),
   },
+  {
+    path: 'mes-de-ferias',
+    loadChildren: () =>
+      import('./features/vacation-payroll/vacation-payroll.routes').then((m) => m.VACATION_PAYROLL_ROUTES),
+  },
   // Próximos módulos entram aqui seguindo o mesmo padrão de loadChildren.
   { path: '**', redirectTo: '' },
 ];
