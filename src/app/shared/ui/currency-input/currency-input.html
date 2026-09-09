@@ -1,0 +1,15 @@
+@if (label()) {
+  <label [for]="inputId()" class="field-label">{{ label() }}</label>
+}
+<input
+  [id]="inputId()"
+  type="text"
+  inputmode="numeric"
+  autocomplete="off"
+  class="field-input"
+  placeholder="R$ 0,00"
+  [value]="displayValue"
+  [disabled]="disabled"
+  (input)="onInput($event)"
+  (blur)="onBlur()"
+/>

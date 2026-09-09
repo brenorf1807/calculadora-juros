@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+.percent-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .field-input {
+    padding-right: 2rem;
+  }
+
+  &__suffix {
+    position: absolute;
+    right: 0.85rem;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+}

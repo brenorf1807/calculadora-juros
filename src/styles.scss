@@ -1,0 +1,152 @@
+/* Estilos globais da aplicação. Classes como .field, .field-input e
+   .calculator são compartilhadas por diferentes páginas de calculadora
+   (compound-interest-page, financing-page e futuras), por isso ficam
+   aqui em vez de duplicadas em cada componente. */
+
+:root {
+  --color-bg: #f5f7f6;
+  --color-surface: #ffffff;
+  --color-surface-hover: #eef2f1;
+  --color-border: #dfe5e3;
+  --color-text: #1c2624;
+  --color-text-muted: #5f6d6a;
+
+  --color-primary: #0f766e;
+  --color-primary-strong: #0b5a54;
+  --color-primary-soft: #e3f3f1;
+  --color-on-primary: #ffffff;
+
+  --color-danger: #b3261e;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+
+  --shadow-md: 0 8px 20px rgba(15, 23, 21, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* Campos de formulário reutilizados pelas páginas de calculadora */
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.field-input {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.95rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+
+  &:disabled {
+    background: var(--color-surface-hover);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+  }
+}
+
+.field__error {
+  color: var(--color-danger);
+  font-size: 0.8rem;
+  margin: 0.35rem 0 0;
+}
+
+.field__hint {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  margin: 0.35rem 0 0;
+}
+
+/* Layout comum às páginas de calculadora */
+
+.calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__header {
+    h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.6rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  &__results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  &__hint {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .calculator__header h1 {
+    font-size: 1.35rem;
+  }
+}

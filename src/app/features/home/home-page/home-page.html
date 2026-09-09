@@ -1,0 +1,23 @@
+<section class="home">
+  <header class="home__header">
+    <h1>Calculadora Financeira</h1>
+    <p>Ferramentas financeiras simples e gratuitas, 100% no seu navegador.</p>
+  </header>
+
+  <div class="home__grid">
+    @for (calculator of calculators; track calculator.title) {
+      @if (calculator.route) {
+        <a class="calculator-card" [routerLink]="calculator.route">
+          <h2 class="calculator-card__title">{{ calculator.title }}</h2>
+          <p class="calculator-card__description">{{ calculator.description }}</p>
+        </a>
+      } @else {
+        <div class="calculator-card calculator-card--disabled">
+          <span class="calculator-card__badge">Em breve</span>
+          <h2 class="calculator-card__title">{{ calculator.title }}</h2>
+          <p class="calculator-card__description">{{ calculator.description }}</p>
+        </div>
+      }
+    }
+  </div>
+</section>

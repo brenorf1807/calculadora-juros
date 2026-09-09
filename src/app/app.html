@@ -1,0 +1,29 @@
+<div class="app-shell">
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a routerLink="/" class="app-header__brand">Calculadora Financeira</a>
+      <nav class="app-header__nav">
+        @for (link of navLinks; track link.path) {
+          <a
+            [routerLink]="link.path"
+            routerLinkActive="app-header__link--active"
+            [routerLinkActiveOptions]="{ exact: link.exact }"
+            class="app-header__link"
+          >
+            {{ link.label }}
+          </a>
+        }
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="container">
+      <router-outlet />
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>Todos os cálculos são feitos localmente no seu navegador — nenhum dado é enviado a servidores.</p>
+  </footer>
+</div>

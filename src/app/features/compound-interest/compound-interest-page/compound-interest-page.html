@@ -1,0 +1,49 @@
+<section class="calculator">
+  <header class="calculator__header">
+    <h1>Juros Compostos</h1>
+    <p>Simule a evolução do seu investimento com aportes mensais e juros compostos.</p>
+  </header>
+
+  <form [formGroup]="form" class="calculator__form">
+    <div class="calculator__grid">
+      <app-currency-input id="initialValue" label="Valor inicial" formControlName="initialValue" />
+
+      <app-currency-input id="monthlyContribution" label="Aporte mensal" formControlName="monthlyContribution" />
+
+      <div class="field">
+        <app-percent-input id="interestRate" label="Taxa de juros" formControlName="interestRate" />
+        <app-unit-toggle [options]="rateTypeOptions" formControlName="rateType" />
+        @if (form.controls.interestRate.invalid && form.controls.interestRate.touched) {
+          <p class="field__error">Informe uma taxa de juros válida (maior que zero).</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="term">Prazo</label>
+        <input id="term" type="number" min="0" class="field-input" formControlName="term" />
+        <app-unit-toggle [options]="termUnitOptions" formControlName="termUnit" />
+        @if (form.controls.term.invalid && form.controls.term.touched) {
+          <p class="field__error">Informe um prazo válido (maior que zero).</p>
+        }
+      </div>
+    </div>
+  </form>
+
+  @if (result(); as res) {
+    <div class="calculator__results">
+      <app-result-card
+        label="Valor total acumulado"
+        [value]="formatCurrency(res.finalBalance)"
+        [highlight]="true"
+      />
+      <app-result-card label="Total investido" [value]="formatCurrency(res.totalInvested)" />
+      <app-result-card label="Total em juros" [value]="formatCurrency(res.totalInterest)" />
+    </div>
+
+    <app-balance-chart [points]="chartPoints()" title="Evolução do saldo" />
+
+    <app-schedule-table [columns]="tableColumns" [rows]="res.schedule" />
+  } @else {
+    <p class="calculator__hint">Preencha os campos acima com valores válidos para ver o resultado.</p>
+  }
+</section>

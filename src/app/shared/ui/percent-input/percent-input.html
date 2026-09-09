@@ -1,0 +1,18 @@
+@if (label()) {
+  <label [for]="inputId()" class="field-label">{{ label() }}</label>
+}
+<div class="percent-input">
+  <input
+    [id]="inputId()"
+    type="text"
+    inputmode="decimal"
+    autocomplete="off"
+    class="field-input"
+    placeholder="0,00"
+    [value]="displayValue"
+    [disabled]="disabled"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+  />
+  <span class="percent-input__suffix">%</span>
+</div>

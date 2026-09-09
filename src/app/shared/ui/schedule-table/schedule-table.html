@@ -1,0 +1,22 @@
+@if (rows().length) {
+  <div class="schedule-table__wrapper">
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          @for (column of columns(); track column.key) {
+            <th>{{ column.header }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row['period'] ?? row['number']) {
+          <tr>
+            @for (column of columns(); track column.key) {
+              <td>{{ formatCell(row[column.key], column.format) }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

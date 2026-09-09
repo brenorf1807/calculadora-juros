@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.unit-toggle {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-top: 0.4rem;
+
+  &__btn {
+    border: none;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    &:not(:last-child) {
+      border-right: 1px solid var(--color-border);
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--color-surface-hover);
+    }
+
+    &--active {
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}

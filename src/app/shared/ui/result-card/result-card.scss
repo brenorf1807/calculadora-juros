@@ -1,0 +1,33 @@
+:host {
+  display: block;
+}
+
+.result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+
+  &__label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  &--highlight {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+
+    .result-card__value {
+      color: var(--color-primary-strong);
+    }
+  }
+}

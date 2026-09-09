@@ -1,0 +1,11 @@
+<div class="balance-chart">
+  <h3 class="balance-chart__title">{{ title() }}</h3>
+  @if (points().length) {
+    <svg [attr.viewBox]="viewBox" class="balance-chart__svg" preserveAspectRatio="none">
+      <path [attr.d]="areaPath()" class="balance-chart__area"></path>
+      <path [attr.d]="linePath()" class="balance-chart__line"></path>
+    </svg>
+  } @else {
+    <p class="balance-chart__empty">Informe os dados para visualizar o gráfico.</p>
+  }
+</div>
