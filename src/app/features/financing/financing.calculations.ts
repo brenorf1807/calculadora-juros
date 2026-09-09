@@ -45,15 +45,36 @@ function calculateFixedInstallment(principal: number, monthlyRate: number, insta
 }
 
 /**
- * Placeholder para o Sistema de Amortização Constante (SAC).
- *
- * Diferença para a Price: no SAC a amortização é fixa (principal / número
- * de parcelas) e o valor da parcela é decrescente, pois os juros incidem
- * sobre um saldo devedor que cai de forma constante. Ainda não
- * implementado — quando for, deve seguir a mesma assinatura de
- * `calculateFinancingPrice` para que a página de financiamento só precise
- * trocar qual função chamar de acordo com `AmortizationSystem`.
+ * Função pura de cálculo de financiamento pelo Sistema de Amortização
+ * Constante (SAC). Diferença para a Price: a amortização é fixa
+ * (principal / número de parcelas) e o valor da parcela é decrescente,
+ * pois os juros incidem sobre um saldo devedor que cai de forma
+ * constante. Segue a mesma assinatura de `calculateFinancingPrice`.
  */
-export function calculateFinancingSAC(_input: FinancingInput): FinancingResult {
-  throw new Error('Sistema de Amortização Constante (SAC) ainda não implementado.');
+export function calculateFinancingSAC(input: FinancingInput): FinancingResult {
+  const monthlyRate = toMonthlyRate(input.interestRate, input.rateType);
+  const installments = Math.max(0, Math.round(input.installments || 0));
+  const principal = input.financedAmount || 0;
+
+  const amortization = installments === 0 ? 0 : principal / installments;
+
+  const schedule: FinancingInstallment[] = [];
+  let balance = principal;
+
+  for (let number = 1; number <= installments; number++) {
+    const interest = balance * monthlyRate;
+    const payment = amortization + interest;
+    balance = Math.max(0, balance - amortization);
+
+    schedule.push({ number, payment, interest, amortization, balance });
+  }
+
+  const totalPaid = schedule.reduce((sum, row) => sum + row.payment, 0);
+
+  return {
+    installmentValue: schedule[0]?.payment ?? 0,
+    totalPaid,
+    totalInterest: installments === 0 ? 0 : totalPaid - principal,
+    schedule,
+  };
 }

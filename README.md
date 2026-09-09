@@ -5,7 +5,7 @@ Aplicação Angular (standalone components, sem backend) com calculadoras financ
 Calculadoras disponíveis:
 
 - **Juros Compostos** — evolução de um investimento com aportes mensais.
-- **Financiamento (Tabela Price)** — parcela fixa e tabela de amortização.
+- **Financiamento (Tabela Price ou SAC)** — parcelas e tabela de amortização, com as duas modalidades.
 
 A arquitetura foi pensada para crescer: novos módulos (ex.: salário líquido, folha de pagamento, INSS, IRRF, FGTS) podem ser adicionados sem refatorar o que já existe.
 
@@ -133,4 +133,3 @@ Basta dar push (ou fazer merge de um PR) na branch `main`: o GitHub Actions buil
 
 - Autenticação, persistência em servidor ou banco de dados.
 - Módulos de salário/folha de pagamento (a arquitetura já está pronta para recebê-los).
-- Sistema de Amortização Constante (SAC) na calculadora de financiamento — o código já está preparado (`financing.model.ts` e `financing.calculations.ts`) para receber essa implementação.

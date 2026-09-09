@@ -9,7 +9,7 @@ import { PercentInputComponent } from '../../../shared/ui/percent-input/percent-
 import { ResultCardComponent } from '../../../shared/ui/result-card/result-card';
 import { ScheduleColumn, ScheduleTableComponent } from '../../../shared/ui/schedule-table/schedule-table';
 import { ToggleOption, UnitToggleComponent } from '../../../shared/ui/unit-toggle/unit-toggle';
-import { calculateFinancingPrice } from '../financing.calculations';
+import { calculateFinancingPrice, calculateFinancingSAC } from '../financing.calculations';
 import { FinancingInput, FinancingResult } from '../financing.model';
 
 @Component({
@@ -33,6 +33,11 @@ export class FinancingPage {
     { value: 'annual', label: 'Anual' },
   ];
 
+  readonly systemOptions: ToggleOption[] = [
+    { value: 'price', label: 'Tabela Price' },
+    { value: 'sac', label: 'SAC' },
+  ];
+
   readonly tableColumns: ScheduleColumn[] = [
     { key: 'number', header: 'Parcela', format: 'number' },
     { key: 'payment', header: 'Valor da parcela', format: 'currency' },
@@ -46,6 +51,7 @@ export class FinancingPage {
     interestRate: [1.5, [Validators.required, positiveValidator()]],
     rateType: ['monthly'],
     installments: [48, [Validators.required, positiveValidator()]],
+    amortizationSystem: ['price'],
   });
 
   readonly result = signal<FinancingResult | null>(null);
@@ -59,12 +65,19 @@ export class FinancingPage {
     return formatBRL(value);
   }
 
+  installmentLabel(system: string): string {
+    return system === 'sac' ? 'Valor da 1ª parcela' : 'Valor da parcela';
+  }
+
   private recalculate(): void {
     if (this.form.invalid) {
       this.result.set(null);
       return;
     }
-    const input = this.form.getRawValue() as unknown as FinancingInput;
-    this.result.set(calculateFinancingPrice(input));
+    const { amortizationSystem, ...rest } = this.form.getRawValue();
+    const input = rest as unknown as FinancingInput;
+    const calculate =
+      amortizationSystem === 'sac' ? calculateFinancingSAC : calculateFinancingPrice;
+    this.result.set(calculate(input));
   }
 }

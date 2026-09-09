@@ -1,7 +1,7 @@
 <section class="calculator">
   <header class="calculator__header">
-    <h1>Financiamento (Tabela Price)</h1>
-    <p>Calcule a parcela fixa e a tabela de amortização de um financiamento com taxa fixa.</p>
+    <h1>Financiamento</h1>
+    <p>Calcule a parcela e a tabela de amortização de um financiamento com taxa fixa, pela Tabela Price ou pelo SAC.</p>
   </header>
 
   <form [formGroup]="form" class="calculator__form">
@@ -25,21 +25,19 @@
       </div>
 
       <div class="field">
-        <label class="field-label" for="amortizationSystem">Sistema de amortização</label>
-        <select id="amortizationSystem" class="field-input" disabled>
-          <option value="price" selected>Tabela Price</option>
-          <option value="sac">SAC (em breve)</option>
-        </select>
-        <p class="field__hint">
-          O Sistema de Amortização Constante (SAC) será adicionado em uma próxima versão.
-        </p>
+        <label class="field-label">Sistema de amortização</label>
+        <app-unit-toggle [options]="systemOptions" formControlName="amortizationSystem" />
       </div>
     </div>
   </form>
 
   @if (result(); as res) {
     <div class="calculator__results">
-      <app-result-card label="Valor da parcela" [value]="formatCurrency(res.installmentValue)" [highlight]="true" />
+      <app-result-card
+        [label]="installmentLabel(form.controls.amortizationSystem.value)"
+        [value]="formatCurrency(res.installmentValue)"
+        [highlight]="true"
+      />
       <app-result-card label="Total pago" [value]="formatCurrency(res.totalPaid)" />
       <app-result-card label="Total de juros pagos" [value]="formatCurrency(res.totalInterest)" />
     </div>

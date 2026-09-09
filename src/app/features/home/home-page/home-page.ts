@@ -27,8 +27,8 @@ export class HomePage {
       route: '/juros-compostos',
     },
     {
-      title: 'Financiamento (Tabela Price)',
-      description: 'Calcule parcelas fixas e a tabela de amortização de um financiamento.',
+      title: 'Financiamento (Price ou SAC)',
+      description: 'Calcule as parcelas e a tabela de amortização de um financiamento.',
       route: '/financiamento',
     },
     {

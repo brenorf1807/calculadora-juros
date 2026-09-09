@@ -25,10 +25,9 @@ export interface FinancingResult {
 }
 
 /**
- * Sistema de amortização usado no cálculo. Hoje só a Tabela Price
- * (`price`) está implementada — ver `calculateFinancingPrice` em
- * `financing.calculations.ts`. O Sistema de Amortização Constante (`sac`)
- * está reservado aqui e na UI para ser adicionado futuramente, seguindo a
- * mesma assinatura `(input: FinancingInput) => FinancingResult`.
+ * Sistema de amortização usado no cálculo: Tabela Price (`price`,
+ * parcelas fixas) ou Sistema de Amortização Constante (`sac`, amortização
+ * fixa e parcelas decrescentes). Ver `calculateFinancingPrice` e
+ * `calculateFinancingSAC` em `financing.calculations.ts`.
  */
 export type AmortizationSystem = 'price' | 'sac';
