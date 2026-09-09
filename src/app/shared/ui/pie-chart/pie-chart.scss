@@ -1,0 +1,71 @@
+:host {
+  display: block;
+}
+
+.pie-chart {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+
+  &__title {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+  }
+
+  &__body {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__svg {
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+  }
+
+  &__legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  &__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  &__legend-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__legend-label {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  &__legend-value {
+    color: var(--color-text-muted);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}

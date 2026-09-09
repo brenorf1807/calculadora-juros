@@ -32,8 +32,13 @@ export class HomePage {
       route: '/financiamento',
     },
     {
-      title: 'Salário Líquido e Folha de Pagamento',
-      description: 'Cálculo de INSS, IRRF, FGTS e folha de pagamento.',
+      title: 'Salário Líquido',
+      description: 'Desconto de INSS e IRRF a partir do salário bruto, com gráfico da distribuição.',
+      route: '/salario',
+    },
+    {
+      title: 'Folha de Pagamento Completa',
+      description: 'Cálculo de FGTS e demais encargos da folha de pagamento.',
       comingSoon: true,
     },
   ];

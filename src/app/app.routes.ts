@@ -16,6 +16,10 @@ export const routes: Routes = [
     path: 'financiamento',
     loadChildren: () => import('./features/financing/financing.routes').then((m) => m.FINANCING_ROUTES),
   },
-  // Próximos módulos (ex.: 'salario') entram aqui seguindo o mesmo padrão de loadChildren.
+  {
+    path: 'salario',
+    loadChildren: () => import('./features/payroll/payroll.routes').then((m) => m.PAYROLL_ROUTES),
+  },
+  // Próximos módulos entram aqui seguindo o mesmo padrão de loadChildren.
   { path: '**', redirectTo: '' },
 ];

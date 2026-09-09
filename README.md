@@ -6,17 +6,19 @@ Calculadoras disponíveis:
 
 - **Juros Compostos** — evolução de um investimento com aportes mensais.
 - **Financiamento (Tabela Price ou SAC)** — parcelas e tabela de amortização, com as duas modalidades.
+- **Salário Líquido** — desconto de INSS e IRRF a partir do salário bruto, com gráfico de pizza da distribuição.
 
-A arquitetura foi pensada para crescer: novos módulos (ex.: salário líquido, folha de pagamento, INSS, IRRF, FGTS) podem ser adicionados sem refatorar o que já existe.
+A arquitetura foi pensada para crescer: novos módulos (ex.: folha de pagamento completa com FGTS) podem ser adicionados sem refatorar o que já existe.
 
 ## Stack
 
 - Angular 20 (standalone components, novo control flow `@if`/`@for`, signals)
 - TypeScript, Angular Reactive Forms
 - SCSS puro (sem framework de UI) — mantém o bundle pequeno e dá controle total sobre o design responsivo mobile-first
-- Gráfico de evolução em SVG inline (sem biblioteca externa)
+- Gráficos (linha e pizza) em SVG inline (sem biblioteca externa)
 - Testes unitários com Jasmine/Karma
 - Firebase (Hosting + Analytics) — configuração em `src/app/core/firebase/`
+- `HttpClient` para buscar as tabelas de INSS/IRRF em tempo de execução (ver seção "Tabelas de INSS/IRRF" abaixo)
 
 ## Rodando localmente
 
@@ -55,8 +57,8 @@ src/app/
   features/
     home/               # página inicial, lista as calculadoras disponíveis
     compound-interest/  # calculadora de juros compostos
-    financing/           # calculadora de financiamento (Tabela Price)
-    # payroll/            <- próximo módulo entraria aqui, seguindo o mesmo padrão
+    financing/           # calculadora de financiamento (Tabela Price/SAC)
+    payroll/             # calculadora de salário líquido (INSS/IRRF)
 ```
 
 Cada calculadora segue o mesmo padrão:
@@ -83,6 +85,30 @@ Usando a de juros compostos como referência:
 - `ResultCardComponent` — card de destaque para um resultado numérico.
 - `ScheduleTableComponent` — tabela genérica de evolução/amortização mês a mês.
 - `BalanceChartComponent` — gráfico de linha (SVG) para visualizar a evolução de um saldo.
+- `PieChartComponent` — gráfico de pizza (SVG) com legenda, para mostrar a distribuição de um total entre categorias.
+
+## Tabelas de INSS/IRRF (calculadora de Salário Líquido)
+
+Não existe hoje uma API pública e gratuita para consultar as tabelas de INSS/IRRF (pesquisamos a
+BrasilAPI e outras opções — nenhuma cobre isso; só há serviços pagos, como a Infosimples). Para não
+depender de um serviço de terceiros pago nem inventar uma integração frágil, optamos por:
+
+1. Manter as tabelas (INSS 2026, IRRF 2026 e o redutor da Lei 15.270/2025) como dados versionados no
+   próprio repositório, em dois lugares que precisam ficar sincronizados:
+   - `public/data/tax-tables-2026.json` — servido como um arquivo estático pelo Firebase Hosting.
+   - `src/app/features/payroll/tax-tables/default-tax-tables.ts` — cópia em TypeScript, usada como
+     valor padrão caso a busca do JSON falhe (ex.: usuário offline).
+2. `TaxTablesService` (`src/app/core/services/tax-tables.service.ts`) busca o JSON via `HttpClient`
+   em tempo de execução — uma chamada HTTP real, não simulada — e cai para o valor padrão em caso de
+   erro. A página de Salário Líquido mostra qual fonte está em uso.
+
+Quando o governo publicar novos valores (o que costuma acontecer uma vez por ano), basta atualizar os
+dois arquivos acima com os novos números — nenhuma lógica de cálculo precisa mudar. Se um dia surgir
+uma API oficial gratuita para essas tabelas, ela pode substituir a URL usada em `TaxTablesService`
+sem impacto no resto da calculadora.
+
+Os valores calculados são estimativas para fins de simulação e não substituem o cálculo oficial da
+folha de pagamento nem a orientação de um contador.
 
 ## Deploy automático (Firebase Hosting + GitHub Actions)
 
@@ -132,4 +158,4 @@ Basta dar push (ou fazer merge de um PR) na branch `main`: o GitHub Actions buil
 ## Fora de escopo (por enquanto)
 
 - Autenticação, persistência em servidor ou banco de dados.
-- Módulos de salário/folha de pagamento (a arquitetura já está pronta para recebê-los).
+- Folha de pagamento completa (FGTS e demais encargos) — a arquitetura já está pronta para recebê-la.

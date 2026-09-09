@@ -1,0 +1,27 @@
+<div class="pie-chart">
+  <h3 class="pie-chart__title">{{ title() }}</h3>
+
+  @if (segments().length) {
+    <div class="pie-chart__body">
+      <svg viewBox="0 0 100 100" class="pie-chart__svg">
+        @for (segment of segments(); track segment.label) {
+          <path [attr.d]="segment.path" [attr.fill]="segment.color" />
+        }
+      </svg>
+
+      <ul class="pie-chart__legend">
+        @for (segment of segments(); track segment.label) {
+          <li class="pie-chart__legend-item">
+            <span class="pie-chart__legend-dot" [style.background]="segment.color"></span>
+            <span class="pie-chart__legend-label">{{ segment.label }}</span>
+            <span class="pie-chart__legend-value">
+              {{ formatValue(segment.value) }} ({{ segment.percentage | number: '1.0-1' }}%)
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  } @else {
+    <p class="pie-chart__empty">Informe os dados para visualizar o gráfico.</p>
+  }
+</div>

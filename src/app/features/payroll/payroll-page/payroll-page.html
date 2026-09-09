@@ -1,0 +1,54 @@
+<section class="calculator">
+  <header class="calculator__header">
+    <h1>Salário Líquido</h1>
+    <p>Informe o salário bruto e veja o desconto de INSS, IRRF e outros descontos até o valor líquido.</p>
+  </header>
+
+  <form [formGroup]="form" class="calculator__form">
+    <div class="calculator__grid">
+      <app-currency-input id="grossSalary" label="Salário bruto" formControlName="grossSalary" />
+
+      <div class="field">
+        <label class="field-label" for="dependents">Dependentes (IRRF)</label>
+        <input id="dependents" type="number" min="0" class="field-input" formControlName="dependents" />
+        @if (form.controls.dependents.invalid && form.controls.dependents.touched) {
+          <p class="field__error">Informe um número de dependentes válido.</p>
+        }
+      </div>
+
+      <app-currency-input
+        id="otherDeductions"
+        label="Outros descontos (plano de saúde, vale-transporte etc.)"
+        formControlName="otherDeductions"
+      />
+    </div>
+  </form>
+
+  @if (result(); as res) {
+    <div class="calculator__results">
+      <app-result-card label="Salário líquido" [value]="formatCurrency(res.netSalary)" [highlight]="true" />
+      <app-result-card label="Desconto INSS" [value]="formatCurrency(res.inssDeduction)" />
+      <app-result-card label="Desconto IRRF" [value]="formatCurrency(res.irrfDeduction)" />
+    </div>
+
+    <app-pie-chart [slices]="pieSlices()" title="Para onde vai o salário bruto" />
+  } @else {
+    <p class="calculator__hint">Preencha os campos acima com valores válidos para ver o resultado.</p>
+  }
+
+  <p class="calculator__hint payroll-source">
+    @switch (tablesStatus()) {
+      @case ('loading') {
+        Carregando tabelas de INSS/IRRF atualizadas...
+      }
+      @case ('remote') {
+        Tabelas de INSS/IRRF atualizadas em {{ tablesUpdatedAt() }}.
+      }
+      @case ('fallback') {
+        Não foi possível buscar a tabela mais recente — usando valores padrão de {{ tablesUpdatedAt() }}.
+      }
+    }
+    Valores estimados com base na tabela progressiva de INSS/IRRF e no redutor da Lei 15.270/2025 (vigente desde
+    01/01/2026). Não substitui o cálculo oficial da folha de pagamento nem a orientação de um contador.
+  </p>
+</section>
