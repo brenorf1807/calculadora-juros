@@ -1,6 +1,6 @@
 # Calculadora Financeira
 
-Aplicação Angular (standalone components, sem backend) com calculadoras financeiras. Todo cálculo roda 100% no navegador — nenhum dado é enviado a servidores.
+Aplicação Angular (standalone components, sem backend) com calculadoras financeiras. Todo cálculo roda 100% no navegador — a única comunicação com um servidor é o Google Analytics (Firebase), usado apenas para métricas de uso do site.
 
 Calculadoras disponíveis:
 
@@ -16,6 +16,7 @@ A arquitetura foi pensada para crescer: novos módulos (ex.: salário líquido, 
 - SCSS puro (sem framework de UI) — mantém o bundle pequeno e dá controle total sobre o design responsivo mobile-first
 - Gráfico de evolução em SVG inline (sem biblioteca externa)
 - Testes unitários com Jasmine/Karma
+- Firebase (Hosting + Analytics) — configuração em `src/app/core/firebase/`
 
 ## Rodando localmente
 
@@ -90,11 +91,14 @@ O repositório já vem com os workflows configurados:
 - `.github/workflows/firebase-hosting-merge.yml` — a cada push/merge na branch `main`, builda o projeto e publica em produção (canal `live`) no Firebase Hosting.
 - `.github/workflows/firebase-hosting-pull-request.yml` — a cada Pull Request para `main`, publica um canal de preview temporário (útil para revisar antes do merge).
 
-Para ativar, siga os passos abaixo:
+O projeto Firebase já está criado (`calculadora-aeca3`) e configurado em `.firebaserc` e em
+`src/app/core/firebase/firebase.config.ts` (Hosting + Analytics). Falta apenas ativar o deploy
+automático seguindo os passos abaixo.
 
-### 1. Criar o projeto no Firebase
+### 1. Ativar o Hosting no projeto
 
-Crie um projeto em [console.firebase.google.com](https://console.firebase.google.com) e ative o **Hosting**.
+No [console.firebase.google.com](https://console.firebase.google.com), abra o projeto
+`calculadora-aeca3` e ative o **Hosting**, caso ainda não esteja ativo.
 
 ### 2. Gerar as credenciais de deploy
 
@@ -119,13 +123,9 @@ Em **Settings → Secrets and variables → Actions** do repositório, adicione:
 | Secret | Valor |
 | --- | --- |
 | `FIREBASE_SERVICE_ACCOUNT` | Conteúdo completo do JSON da Service Account |
-| `FIREBASE_PROJECT_ID` | ID do projeto Firebase (ex.: `calculadora-financeira-xxxxx`) |
+| `FIREBASE_PROJECT_ID` | `calculadora-aeca3` |
 
-### 4. (Opcional) Atualizar o `.firebaserc`
-
-Substitua `SEU_PROJECT_ID_FIREBASE` em `.firebaserc` pelo ID real do projeto — útil para rodar `firebase deploy` manualmente a partir da sua máquina.
-
-### 5. Fazer o deploy
+### 4. Fazer o deploy
 
 Basta dar push (ou fazer merge de um PR) na branch `main`: o GitHub Actions builda a aplicação, roda os testes unitários e publica automaticamente no Firebase Hosting.
 
