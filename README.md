@@ -7,6 +7,7 @@ Calculadoras disponíveis:
 - **Juros Compostos** — evolução de um investimento com aportes mensais.
 - **Financiamento (Tabela Price ou SAC)** — parcelas e tabela de amortização, com as duas modalidades.
 - **Salário Líquido** — desconto de INSS e IRRF a partir do salário bruto, com gráfico de pizza da distribuição.
+- **Férias** — valor líquido das férias (com 1/3 constitucional) e adiantamento da 1ª parcela do 13º salário.
 
 A arquitetura foi pensada para crescer: novos módulos (ex.: folha de pagamento completa com FGTS) podem ser adicionados sem refatorar o que já existe.
 
@@ -52,13 +53,16 @@ src/app/
     models/            # tipos comuns (ex.: RateType, TermUnit)
     utils/             # formatação de moeda/percentual, conversão de taxas — funções puras
     validators/        # validators de formulário reutilizáveis
+    tax/               # tabelas e funções puras de INSS/IRRF, usadas por salário e férias
+    services/          # TaxTablesService (busca as tabelas em runtime, com fallback local)
   shared/
-    ui/                # componentes de UI reutilizáveis (inputs, cards, tabela, gráfico)
+    ui/                # componentes de UI reutilizáveis (inputs, cards, tabela, gráficos)
   features/
     home/               # página inicial, lista as calculadoras disponíveis
     compound-interest/  # calculadora de juros compostos
     financing/           # calculadora de financiamento (Tabela Price/SAC)
     payroll/             # calculadora de salário líquido (INSS/IRRF)
+    vacation/            # calculadora de férias (INSS/IRRF + adiantamento do 13º)
 ```
 
 Cada calculadora segue o mesmo padrão:
@@ -87,7 +91,7 @@ Usando a de juros compostos como referência:
 - `BalanceChartComponent` — gráfico de linha (SVG) para visualizar a evolução de um saldo.
 - `PieChartComponent` — gráfico de pizza (SVG) com legenda, para mostrar a distribuição de um total entre categorias.
 
-## Tabelas de INSS/IRRF (calculadora de Salário Líquido)
+## Tabelas de INSS/IRRF (Salário Líquido e Férias)
 
 Não existe hoje uma API pública e gratuita para consultar as tabelas de INSS/IRRF (pesquisamos a
 BrasilAPI e outras opções — nenhuma cobre isso; só há serviços pagos, como a Infosimples). Para não
@@ -96,11 +100,14 @@ depender de um serviço de terceiros pago nem inventar uma integração frágil,
 1. Manter as tabelas (INSS 2026, IRRF 2026 e o redutor da Lei 15.270/2025) como dados versionados no
    próprio repositório, em dois lugares que precisam ficar sincronizados:
    - `public/data/tax-tables-2026.json` — servido como um arquivo estático pelo Firebase Hosting.
-   - `src/app/features/payroll/tax-tables/default-tax-tables.ts` — cópia em TypeScript, usada como
-     valor padrão caso a busca do JSON falhe (ex.: usuário offline).
+   - `src/app/core/tax/default-tax-tables.ts` — cópia em TypeScript, usada como valor padrão caso a
+     busca do JSON falhe (ex.: usuário offline).
 2. `TaxTablesService` (`src/app/core/services/tax-tables.service.ts`) busca o JSON via `HttpClient`
    em tempo de execução — uma chamada HTTP real, não simulada — e cai para o valor padrão em caso de
-   erro. A página de Salário Líquido mostra qual fonte está em uso.
+   erro. As páginas de Salário Líquido e Férias mostram qual fonte está em uso.
+3. `src/app/core/tax/inss-irrf.calculations.ts` tem as funções puras de cálculo (`calculateINSS`,
+   `calculateIRRF`), reaproveitadas por qualquer calculadora que precise de INSS/IRRF sobre um
+   rendimento — hoje salário e férias, no futuro também o 13º salário.
 
 Quando o governo publicar novos valores (o que costuma acontecer uma vez por ano), basta atualizar os
 dois arquivos acima com os novos números — nenhuma lógica de cálculo precisa mudar. Se um dia surgir
@@ -108,7 +115,8 @@ uma API oficial gratuita para essas tabelas, ela pode substituir a URL usada em 
 sem impacto no resto da calculadora.
 
 Os valores calculados são estimativas para fins de simulação e não substituem o cálculo oficial da
-folha de pagamento nem a orientação de um contador.
+folha de pagamento nem a orientação de um contador. Na calculadora de férias, o abono pecuniário
+(venda de até 1/3 dos dias de férias) ainda não está implementado.
 
 ## Deploy automático (Firebase Hosting + GitHub Actions)
 

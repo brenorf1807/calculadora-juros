@@ -5,6 +5,10 @@ import { TaxTables } from './tax-tables.model';
  * (bundle offline) e como conteúdo de referência para
  * `public/data/tax-tables-2026.json` — mantenha os dois em sincronia.
  *
+ * Usadas por qualquer calculadora que precise de INSS/IRRF (salário
+ * líquido, férias, 13º...), via `TaxTablesService` e as funções puras em
+ * `core/tax/inss-irrf.calculations.ts`.
+ *
  * Fontes: tabela progressiva do INSS e do IRRF (valores amplamente
  * publicados por contabilidades) e o redutor do IRRF da Lei 15.270/2025
  * (vigência 01/01/2026, isenção efetiva até R$5.000 com redução

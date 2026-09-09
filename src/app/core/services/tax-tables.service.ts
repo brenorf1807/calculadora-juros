@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-import { DEFAULT_TAX_TABLES } from '../../features/payroll/tax-tables/default-tax-tables';
-import { TaxTables } from '../../features/payroll/tax-tables/tax-tables.model';
+import { DEFAULT_TAX_TABLES } from '../tax/default-tax-tables';
+import { TaxTables } from '../tax/tax-tables.model';
 
 export type TaxTablesStatus = 'loading' | 'remote' | 'fallback';
 

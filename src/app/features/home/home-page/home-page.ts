@@ -37,6 +37,11 @@ export class HomePage {
       route: '/salario',
     },
     {
+      title: 'Férias',
+      description: 'Valor líquido das férias com 1/3 constitucional e adiantamento do 13º salário.',
+      route: '/ferias',
+    },
+    {
       title: 'Folha de Pagamento Completa',
       description: 'Cálculo de FGTS e demais encargos da folha de pagamento.',
       comingSoon: true,

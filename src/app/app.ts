@@ -13,5 +13,6 @@ export class App {
     { path: '/juros-compostos', label: 'Juros Compostos', exact: false },
     { path: '/financiamento', label: 'Financiamento', exact: false },
     { path: '/salario', label: 'Salário Líquido', exact: false },
+    { path: '/ferias', label: 'Férias', exact: false },
   ];
 }
