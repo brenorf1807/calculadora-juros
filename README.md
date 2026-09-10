@@ -9,6 +9,7 @@ Calculadoras disponíveis:
 - **Salário Líquido** — desconto de INSS e IRRF a partir do salário bruto, com gráfico de pizza da distribuição.
 - **Férias** — valor líquido das férias (com 1/3 constitucional) e adiantamento da 1ª parcela do 13º salário.
 - **Mês de Férias** — une salário e férias do mesmo mês: INSS calculado uma única vez sobre o total (respeitando um único teto) e IRRF apurado separadamente para cada parte, como exige o art. 625 do RIR/2018 — evita o erro comum de somar as calculadoras de Salário Líquido e Férias separadas.
+- **Rescisão** — verbas rescisórias (saldo de salário, aviso prévio, 13º e férias proporcionais, férias vencidas, multa do FGTS) para os 4 motivos de desligamento mais comuns: sem justa causa, justa causa, pedido de demissão e acordo entre as partes (art. 484-A da CLT).
 
 A arquitetura foi pensada para crescer: novos módulos (ex.: folha de pagamento completa com FGTS) podem ser adicionados sem refatorar o que já existe.
 
@@ -65,6 +66,7 @@ src/app/
     payroll/             # calculadora de salário líquido (INSS/IRRF)
     vacation/            # calculadora de férias isoladas (INSS/IRRF + adiantamento do 13º)
     vacation-payroll/    # calculadora "Mês de Férias" (salário + férias unificados)
+    termination/         # calculadora de rescisão (verbas rescisórias)
 ```
 
 Cada calculadora segue o mesmo padrão:
@@ -197,3 +199,6 @@ Basta dar push (ou fazer merge de um PR) na branch `main`: o GitHub Actions buil
 
 - Autenticação, persistência em servidor ou banco de dados.
 - Folha de pagamento completa (FGTS e demais encargos) — a arquitetura já está pronta para recebê-la.
+- Na calculadora de Rescisão: rescisão indireta, culpa recíproca, término de contrato por prazo
+  determinado, aposentadoria e morte do empregado — cada uma tem regras próprias que merecem
+  tratamento dedicado; hoje só os 4 motivos mais comuns estão implementados.

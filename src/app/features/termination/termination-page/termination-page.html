@@ -1,0 +1,144 @@
+<section class="calculator">
+  <header class="calculator__header">
+    <h1>Rescisão</h1>
+    <p>
+      Calcula as verbas rescisórias para os 4 motivos mais comuns de desligamento: sem justa causa,
+      justa causa, pedido de demissão e acordo entre as partes (art. 484-A da CLT).
+    </p>
+  </header>
+
+  <form [formGroup]="form" class="calculator__form">
+    <div class="calculator__grid">
+      <app-currency-input id="grossSalary" label="Salário bruto mensal" formControlName="grossSalary" />
+
+      <div class="field">
+        <label class="field-label">Motivo da rescisão</label>
+        <app-unit-toggle [options]="reasonOptions" formControlName="reason" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="daysWorkedInMonth">Dias trabalhados no mês da rescisão</label>
+        <input
+          id="daysWorkedInMonth"
+          type="number"
+          min="1"
+          max="30"
+          class="field-input"
+          formControlName="daysWorkedInMonth"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="monthsWorkedInYear">Meses trabalhados no ano (13º)</label>
+        <input
+          id="monthsWorkedInYear"
+          type="number"
+          min="0"
+          max="12"
+          class="field-input"
+          formControlName="monthsWorkedInYear"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="monthsWorkedInVacationPeriod">
+          Meses no período aquisitivo de férias atual
+        </label>
+        <input
+          id="monthsWorkedInVacationPeriod"
+          type="number"
+          min="0"
+          max="12"
+          class="field-input"
+          formControlName="monthsWorkedInVacationPeriod"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="yearsOfService">Anos completos de casa</label>
+        <input
+          id="yearsOfService"
+          type="number"
+          min="0"
+          class="field-input"
+          formControlName="yearsOfService"
+        />
+      </div>
+
+      <app-currency-input
+        id="fgtsBalance"
+        label="Saldo total depositado no FGTS"
+        formControlName="fgtsBalance"
+      />
+
+      <div class="field">
+        <label class="field-label" for="dependents">Dependentes (IRRF)</label>
+        <input id="dependents" type="number" min="0" class="field-input" formControlName="dependents" />
+      </div>
+
+      <label class="field field--checkbox">
+        <input type="checkbox" formControlName="hasUnusedVacation" />
+        Tem férias vencidas (período anterior completo, não gozadas)
+      </label>
+
+      @if (showNoticeType()) {
+        <div class="field">
+          <label class="field-label">Aviso prévio</label>
+          <app-unit-toggle [options]="noticeTypeOptions" formControlName="noticeType" />
+        </div>
+      }
+
+      @if (showResignationNotice()) {
+        <label class="field field--checkbox">
+          <input type="checkbox" formControlName="noticeWorkedByEmployee" />
+          O empregado cumpriu o aviso prévio
+        </label>
+      }
+    </div>
+  </form>
+
+  @if (result(); as res) {
+    <div class="calculator__results">
+      <app-result-card label="Total líquido a receber" [value]="formatCurrency(res.netTotal)" [highlight]="true" />
+    </div>
+
+    <div class="calculator__results">
+      <app-result-card label="Saldo de salário" [value]="formatCurrency(res.balanceSalary)" />
+      <app-result-card label="Aviso prévio" [value]="formatCurrency(res.noticeAmount)" />
+      <app-result-card label="13º proporcional" [value]="formatCurrency(res.thirteenthSalary)" />
+      <app-result-card label="Férias vencidas" [value]="formatCurrency(res.unusedVacation)" />
+      <app-result-card label="Férias proporcionais" [value]="formatCurrency(res.proportionalVacation)" />
+      <app-result-card label="Multa FGTS" [value]="formatCurrency(res.fgtsFine)" />
+      <app-result-card label="Desconto INSS" [value]="formatCurrency(res.totalInss)" />
+      <app-result-card label="Desconto IRRF" [value]="formatCurrency(res.totalIrrf)" />
+      @if (res.noticeDiscount > 0) {
+        <app-result-card label="Desconto: aviso prévio não cumprido" [value]="formatCurrency(res.noticeDiscount)" />
+      }
+    </div>
+
+    <app-pie-chart [slices]="pieSlices()" title="Composição das verbas rescisórias" />
+  } @else {
+    <p class="calculator__hint">Preencha os campos acima com valores válidos para ver o resultado.</p>
+  }
+
+  <p class="calculator__hint payroll-source">
+    @switch (tablesStatus()) {
+      @case ('loading') {
+        Carregando tabelas de INSS/IRRF atualizadas...
+      }
+      @case ('remote') {
+        Tabelas de INSS/IRRF atualizadas em {{ tablesUpdatedAt() }}.
+      }
+      @case ('fallback') {
+        Não foi possível buscar a tabela mais recente — usando valores padrão de {{ tablesUpdatedAt() }}.
+      }
+    }
+    Saldo de salário e 13º proporcional são tributáveis (INSS e IRRF, cada um apurado de forma
+    independente). Aviso prévio indenizado, férias (vencidas e proporcionais, com o 1/3) e a multa do
+    FGTS são isentos de INSS e IRRF, por terem natureza indenizatória. <strong>Esta calculadora cobre
+    apenas os 4 motivos de rescisão listados acima</strong> — rescisão indireta, culpa recíproca,
+    término de contrato por prazo determinado, aposentadoria e outras situações não estão
+    implementadas. Valores estimados para fins de simulação — não substituem o cálculo oficial do
+    termo de rescisão nem a orientação de um contador ou advogado trabalhista.
+  </p>
+</section>

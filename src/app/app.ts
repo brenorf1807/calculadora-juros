@@ -15,5 +15,6 @@ export class App {
     { path: '/salario', label: 'Salário Líquido', exact: false },
     { path: '/ferias', label: 'Férias', exact: false },
     { path: '/mes-de-ferias', label: 'Mês de Férias', exact: false },
+    { path: '/rescisao', label: 'Rescisão', exact: false },
   ];
 }

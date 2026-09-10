@@ -29,6 +29,10 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/vacation-payroll/vacation-payroll.routes').then((m) => m.VACATION_PAYROLL_ROUTES),
   },
+  {
+    path: 'rescisao',
+    loadChildren: () => import('./features/termination/termination.routes').then((m) => m.TERMINATION_ROUTES),
+  },
   // Próximos módulos entram aqui seguindo o mesmo padrão de loadChildren.
   { path: '**', redirectTo: '' },
 ];
