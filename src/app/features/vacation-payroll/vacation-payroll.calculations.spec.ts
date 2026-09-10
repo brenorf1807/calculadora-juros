@@ -1,4 +1,5 @@
-import { calculateINSS } from '../../core/tax/inss-irrf.calculations';
+import { calculateINSS, calculateIRRF } from '../../core/tax/inss-irrf.calculations';
+import { DEFAULT_TAX_TABLES } from '../../core/tax/default-tax-tables';
 import { calculatePayroll } from '../payroll/payroll.calculations';
 import { calculateVacation } from '../vacation/vacation.calculations';
 import { calculateVacationPayroll } from './vacation-payroll.calculations';
@@ -73,7 +74,7 @@ describe('calculateVacationPayroll', () => {
     expect(result.inssDeduction).toBeCloseTo(calculateINSS(ceiling), 6);
   });
 
-  it('o cálculo unificado desconta menos INSS do que somar Salário e Férias calculados separadamente', () => {
+  it('o INSS unificado é menor do que somar Salário e Férias calculados separadamente perto do teto', () => {
     const grossSalary = 8475.55; // no teto
     const vacationDays = 15;
 
@@ -87,7 +88,7 @@ describe('calculateVacationPayroll', () => {
 
     // Erro comum de planilha: usar o salário cheio na calculadora de
     // Salário Líquido e, à parte, o valor das férias na calculadora de
-    // Férias — cada uma aplica o teto/tabela isoladamente.
+    // Férias — cada uma aplica o teto do INSS isoladamente.
     const naiveSalaryPortion = calculatePayroll({ grossSalary, dependents: 0, otherDeductions: 0 });
     const naiveVacationPortion = calculateVacation({
       grossSalary,
@@ -100,16 +101,57 @@ describe('calculateVacationPayroll', () => {
     expect(unified.inssDeduction).toBeLessThan(naiveTotalInss);
   });
 
-  it('a dedução por dependente do IRRF é aplicada uma única vez sobre o total do mês', () => {
+  it('calcula o IRRF separadamente para salário e férias, com o INSS rateado entre as duas partes (RIR/2018, art. 625)', () => {
+    const grossSalary = 9000;
+    const vacationDays = 10;
+    const dependents = 1;
+
+    const result = calculateVacationPayroll({
+      grossSalary,
+      vacationDays,
+      dependents,
+      otherDeductions: 0,
+      anticipateThirteenth: false,
+    });
+
+    // Reproduz o algoritmo esperado: INSS único sobre o total, rateado
+    // proporcionalmente, e IRRF apurado em separado para cada parte.
+    const workedDays = 30 - vacationDays;
+    const dailyRate = grossSalary / 30;
+    const proportionalSalary = dailyRate * workedDays;
+    const vacationPay = dailyRate * vacationDays;
+    const vacationGross = vacationPay + vacationPay / 3;
+    const grossTotal = proportionalSalary + vacationGross;
+
+    const expectedInss = calculateINSS(grossTotal);
+    const salaryShare = proportionalSalary / grossTotal;
+    const inssOnSalary = expectedInss * salaryShare;
+    const inssOnVacation = expectedInss - inssOnSalary;
+    const dependentDeduction = dependents * DEFAULT_TAX_TABLES.irrf.dependentDeduction;
+
+    const expectedSalaryIrrf = calculateIRRF(
+      proportionalSalary,
+      Math.max(0, proportionalSalary - inssOnSalary - dependentDeduction),
+    );
+    const expectedVacationIrrf = calculateIRRF(
+      vacationGross,
+      Math.max(0, vacationGross - inssOnVacation - dependentDeduction),
+    );
+
+    expect(result.inssDeduction).toBeCloseTo(expectedInss, 6);
+    expect(result.irrfDeduction).toBeCloseTo(expectedSalaryIrrf + expectedVacationIrrf, 6);
+  });
+
+  it('a dedução por dependente vale integralmente tanto no salário quanto nas férias, sem prejuízo mútuo', () => {
     const withoutDependents = calculateVacationPayroll({
-      grossSalary: 6000,
+      grossSalary: 9000,
       vacationDays: 10,
       dependents: 0,
       otherDeductions: 0,
       anticipateThirteenth: false,
     });
     const withDependents = calculateVacationPayroll({
-      grossSalary: 6000,
+      grossSalary: 9000,
       vacationDays: 10,
       dependents: 3,
       otherDeductions: 0,

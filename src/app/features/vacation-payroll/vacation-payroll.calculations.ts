@@ -8,16 +8,23 @@ const DAYS_IN_MONTH = 30;
 /**
  * Função pura de cálculo do mês em que o funcionário sai de férias:
  * salário proporcional aos dias trabalhados + valor das férias + 1/3
- * constitucional, com **INSS e IRRF calculados uma única vez sobre o
- * total do mês** — respeitando um único teto de contribuição do INSS e
- * uma única dedução por dependente do IRRF.
+ * constitucional.
  *
- * Isso é diferente (e mais correto) do que simplesmente somar os
- * resultados das calculadoras de Salário Líquido e de Férias
- * separadamente: cada uma delas aplicaria o teto do INSS e a dedução por
- * dependente de forma independente, o que tende a subestimar os
- * descontos quando o salário já está perto do teto. Não depende do
- * Angular — testável isolada.
+ * INSS e IRRF seguem regras diferentes aqui, e é importante não
+ * confundi-las:
+ * - INSS: calculado uma única vez sobre o total do mês (salário +
+ *   férias + 1/3), respeitando um único teto de contribuição — é
+ *   regime de competência, a Previdência trata as duas verbas como uma
+ *   remuneração só.
+ * - IRRF: a Receita Federal exige o contrário (RIR/2018, art. 625) — o
+ *   imposto sobre férias é retido **separado** do imposto sobre o
+ *   salário do mesmo mês, cada um com sua própria tabela progressiva e
+ *   sua própria dedução por dependente (a dedução vale integralmente
+ *   nos dois cálculos, sem prejuízo). Para isso, o INSS total (já
+ *   calculado uma vez) é rateado proporcionalmente entre as duas partes
+ *   antes de apurar a base de cada IRRF.
+ *
+ * Não depende do Angular — testável isolada.
  */
 export function calculateVacationPayroll(
   input: VacationPayrollInput,
@@ -33,12 +40,28 @@ export function calculateVacationPayroll(
   const proportionalSalary = dailyRate * workedDays;
   const vacationPay = dailyRate * vacationDays;
   const constitutionalBonus = vacationPay / 3;
-  const grossTotal = proportionalSalary + vacationPay + constitutionalBonus;
+  const vacationGross = vacationPay + constitutionalBonus;
+  const grossTotal = proportionalSalary + vacationGross;
 
+  // INSS: uma única apuração sobre o total do mês, respeitando um único teto.
   const inssDeduction = calculateINSS(grossTotal, tables);
+
+  // Rateia o INSS proporcionalmente entre salário e férias, para then
+  // apurar a base de cada IRRF separadamente (a Receita Federal proíbe
+  // somar as duas bases — RIR/2018, art. 625).
+  const salaryShare = grossTotal > 0 ? proportionalSalary / grossTotal : 0;
+  const inssOnSalary = inssDeduction * salaryShare;
+  const inssOnVacation = inssDeduction - inssOnSalary;
+
   const dependentDeduction = dependents * tables.irrf.dependentDeduction;
-  const irrfBase = Math.max(0, grossTotal - inssDeduction - dependentDeduction);
-  const irrfDeduction = calculateIRRF(grossTotal, irrfBase, tables);
+
+  const salaryIrrfBase = Math.max(0, proportionalSalary - inssOnSalary - dependentDeduction);
+  const salaryIrrf = calculateIRRF(proportionalSalary, salaryIrrfBase, tables);
+
+  const vacationIrrfBase = Math.max(0, vacationGross - inssOnVacation - dependentDeduction);
+  const vacationIrrf = calculateIRRF(vacationGross, vacationIrrfBase, tables);
+
+  const irrfDeduction = salaryIrrf + vacationIrrf;
 
   const netTotal = grossTotal - inssDeduction - irrfDeduction - otherDeductions;
   const thirteenthAdvance = input.anticipateThirteenth ? grossSalary * 0.5 : 0;

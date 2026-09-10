@@ -2,9 +2,9 @@
   <header class="calculator__header">
     <h1>Mês de Férias</h1>
     <p>
-      Simula o mês em que você sai de férias: salário dos dias trabalhados + férias com 1/3, com
-      INSS e IRRF calculados uma única vez sobre o total — sem correr o risco de estourar o teto do
-      INSS por engano.
+      Simula o mês em que você sai de férias: salário dos dias trabalhados + férias com 1/3, com o
+      INSS respeitando um único teto e o IRRF calculado separadamente para cada parte, como manda a
+      lei.
     </p>
   </header>
 
@@ -77,11 +77,12 @@
         Não foi possível buscar a tabela mais recente — usando valores padrão de {{ tablesUpdatedAt() }}.
       }
     }
-    O INSS e o IRRF (com o redutor da Lei 15.270/2025) são calculados uma única vez sobre o total do
-    mês (salário proporcional + férias + 1/3) — diferente de somar as calculadoras de Salário Líquido
-    e de Férias separadamente, o que aplicaria o teto do INSS e a dedução por dependente duas vezes.
-    O abono pecuniário (venda de parte das férias) ainda não está implementado. Valores estimados para
-    fins de simulação — não substituem o cálculo oficial da folha de pagamento nem a orientação de um
-    contador.
+    O INSS é calculado uma única vez sobre o total do mês (salário proporcional + férias + 1/3),
+    respeitando um único teto de contribuição. Já o IRRF (com o redutor da Lei 15.270/2025) é apurado
+    separadamente para o salário e para as férias, como exige o art. 625 do RIR/2018 — o INSS é
+    rateado entre as duas partes para isso, e a dedução por dependente vale integralmente nos dois
+    cálculos. O abono pecuniário (venda de parte das férias) ainda não está implementado. Valores
+    estimados para fins de simulação — não substituem o cálculo oficial da folha de pagamento nem a
+    orientação de um contador.
   </p>
 </section>
