@@ -105,7 +105,7 @@ describe('calculateVacationPayroll', () => {
     expect(unified.inssDeduction).toBeLessThan(naiveTotalInss);
   });
 
-  it('calcula o IRRF separadamente para salário e férias, com o INSS rateado entre as duas partes (RIR/2018, art. 625)', () => {
+  it('calcula o IRRF separadamente para salário e férias, com o INSS de cada base recalculado de forma independente (RIR/2018, art. 625)', () => {
     const grossSalary = 9000;
     const vacationDays = 10;
     const dependents = 1;
@@ -118,34 +118,54 @@ describe('calculateVacationPayroll', () => {
       anticipateThirteenth: false,
     });
 
-    // Reproduz o algoritmo esperado: INSS único sobre o total, rateado
-    // proporcionalmente, e IRRF apurado em separado para cada parte.
+    // Reproduz o algoritmo esperado: INSS único (com teto) para o valor
+    // efetivamente descontado, mas um INSS independente para cada parte
+    // na hora de apurar a base do IRRF.
     const workedDays = 30 - vacationDays;
     const dailyRate = grossSalary / 30;
     const proportionalSalary = dailyRate * workedDays;
     const vacationPay = dailyRate * vacationDays;
     const vacationGross = vacationPay + vacationPay / 3;
     const grossTotal = proportionalSalary + vacationGross;
-
-    const expectedInss = calculateINSS(grossTotal);
-    const salaryShare = proportionalSalary / grossTotal;
-    const inssOnSalary = expectedInss * salaryShare;
-    const inssOnVacation = expectedInss - inssOnSalary;
     const dependentDeduction = dependents * DEFAULT_TAX_TABLES.irrf.dependentDeduction;
 
+    const expectedInss = calculateINSS(grossTotal);
     const expectedSalaryIrrf = calculateIRRF(
       proportionalSalary,
-      Math.max(0, proportionalSalary - inssOnSalary - dependentDeduction),
+      Math.max(0, proportionalSalary - calculateINSS(proportionalSalary) - dependentDeduction),
     );
     const expectedVacationIrrf = calculateIRRF(
       vacationGross,
-      Math.max(0, vacationGross - inssOnVacation - dependentDeduction),
+      Math.max(0, vacationGross - calculateINSS(vacationGross) - dependentDeduction),
     );
 
     expect(result.inssDeduction).toBeCloseTo(expectedInss, 6);
     expect(result.salaryIrrfDeduction).toBeCloseTo(expectedSalaryIrrf, 6);
     expect(result.vacationIrrfDeduction).toBeCloseTo(expectedVacationIrrf, 6);
     expect(result.irrfDeduction).toBeCloseTo(expectedSalaryIrrf + expectedVacationIrrf, 6);
+  });
+
+  it('bate exatamente com as calculadoras de Salário Líquido e de Férias isoladas para os mesmos valores', () => {
+    // Caso relatado: salário de R$15.000, 10 dias de férias (salário
+    // proporcional de R$10.000) e R$400 de outros descontos no salário.
+    const grossSalary = 15000;
+    const vacationDays = 10;
+    const otherDeductions = 400;
+
+    const result = calculateVacationPayroll({
+      grossSalary,
+      vacationDays,
+      dependents: 0,
+      otherDeductions,
+      anticipateThirteenth: false,
+    });
+
+    const proportionalSalary = (grossSalary / 30) * (30 - vacationDays);
+    const payroll = calculatePayroll({ grossSalary: proportionalSalary, dependents: 0, otherDeductions });
+    const vacation = calculateVacation({ grossSalary, vacationDays, dependents: 0, anticipateThirteenth: false });
+
+    expect(result.salaryIrrfDeduction).toBeCloseTo(payroll.irrfDeduction, 2);
+    expect(result.vacationIrrfDeduction).toBeCloseTo(vacation.irrfDeduction, 2);
   });
 
   it('expõe o IRRF do salário e das férias separadamente no resultado (não só o total)', () => {
