@@ -14,7 +14,8 @@ import { VacationPayrollInput, VacationPayrollResult } from '../vacation-payroll
 const BREAKDOWN_COLORS: Record<string, string> = {
   'Líquido do mês': '#0f766e',
   INSS: '#b45309',
-  IRRF: '#be123c',
+  'IRRF salário': '#be123c',
+  'IRRF férias': '#e11d48',
   'Outros descontos': '#0369a1',
   'Adiantamento do 13º': '#6d28d9',
 };

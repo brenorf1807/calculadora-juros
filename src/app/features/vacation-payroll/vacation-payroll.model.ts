@@ -25,10 +25,11 @@ export interface VacationPayrollResult {
   grossTotal: number;
   /** INSS calculado uma única vez sobre `grossTotal`, respeitando um único teto de contribuição. */
   inssDeduction: number;
-  /**
-   * IRRF apurado separadamente para o salário e para as férias (RIR/2018,
-   * art. 625) — este valor é a soma das duas apurações.
-   */
+  /** IRRF apurado sobre a parte do salário (dias trabalhados), separado das férias (RIR/2018, art. 625). */
+  salaryIrrfDeduction: number;
+  /** IRRF apurado sobre a parte das férias (+ 1/3), separado do salário (RIR/2018, art. 625). */
+  vacationIrrfDeduction: number;
+  /** Total de IRRF do mês (salaryIrrfDeduction + vacationIrrfDeduction). */
   irrfDeduction: number;
   otherDeductions: number;
   /** Líquido do mês (grossTotal - INSS - IRRF - outros descontos). */

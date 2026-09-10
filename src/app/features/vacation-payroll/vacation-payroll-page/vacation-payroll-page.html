@@ -54,7 +54,8 @@
       <app-result-card label="Salário (dias trabalhados)" [value]="formatCurrency(res.proportionalSalary)" />
       <app-result-card label="Férias + 1/3 (bruto)" [value]="formatCurrency(res.vacationPay + res.constitutionalBonus)" />
       <app-result-card label="Desconto INSS" [value]="formatCurrency(res.inssDeduction)" />
-      <app-result-card label="Desconto IRRF" [value]="formatCurrency(res.irrfDeduction)" />
+      <app-result-card label="IRRF sobre o salário" [value]="formatCurrency(res.salaryIrrfDeduction)" />
+      <app-result-card label="IRRF sobre as férias" [value]="formatCurrency(res.vacationIrrfDeduction)" />
       @if (form.controls.anticipateThirteenth.value) {
         <app-result-card label="Adiantamento do 13º" [value]="formatCurrency(res.thirteenthAdvance)" />
       }

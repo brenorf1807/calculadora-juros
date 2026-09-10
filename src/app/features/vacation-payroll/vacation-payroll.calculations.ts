@@ -56,12 +56,12 @@ export function calculateVacationPayroll(
   const dependentDeduction = dependents * tables.irrf.dependentDeduction;
 
   const salaryIrrfBase = Math.max(0, proportionalSalary - inssOnSalary - dependentDeduction);
-  const salaryIrrf = calculateIRRF(proportionalSalary, salaryIrrfBase, tables);
+  const salaryIrrfDeduction = calculateIRRF(proportionalSalary, salaryIrrfBase, tables);
 
   const vacationIrrfBase = Math.max(0, vacationGross - inssOnVacation - dependentDeduction);
-  const vacationIrrf = calculateIRRF(vacationGross, vacationIrrfBase, tables);
+  const vacationIrrfDeduction = calculateIRRF(vacationGross, vacationIrrfBase, tables);
 
-  const irrfDeduction = salaryIrrf + vacationIrrf;
+  const irrfDeduction = salaryIrrfDeduction + vacationIrrfDeduction;
 
   const netTotal = grossTotal - inssDeduction - irrfDeduction - otherDeductions;
   const thirteenthAdvance = input.anticipateThirteenth ? grossSalary * 0.5 : 0;
@@ -74,6 +74,8 @@ export function calculateVacationPayroll(
     constitutionalBonus,
     grossTotal,
     inssDeduction,
+    salaryIrrfDeduction,
+    vacationIrrfDeduction,
     irrfDeduction,
     otherDeductions,
     netTotal,
@@ -82,7 +84,8 @@ export function calculateVacationPayroll(
     breakdown: [
       { label: 'Líquido do mês', value: netTotal },
       { label: 'INSS', value: inssDeduction },
-      { label: 'IRRF', value: irrfDeduction },
+      { label: 'IRRF salário', value: salaryIrrfDeduction },
+      { label: 'IRRF férias', value: vacationIrrfDeduction },
       { label: 'Outros descontos', value: otherDeductions },
       { label: 'Adiantamento do 13º', value: thirteenthAdvance },
     ].filter((item) => item.value > 0),

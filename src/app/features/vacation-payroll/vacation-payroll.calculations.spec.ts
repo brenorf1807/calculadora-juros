@@ -32,6 +32,8 @@ describe('calculateVacationPayroll', () => {
 
     expect(result.grossTotal).toBeCloseTo(5000, 6);
     expect(result.inssDeduction).toBeCloseTo(payroll.inssDeduction, 6);
+    expect(result.salaryIrrfDeduction).toBeCloseTo(payroll.irrfDeduction, 6);
+    expect(result.vacationIrrfDeduction).toBe(0);
     expect(result.irrfDeduction).toBeCloseTo(payroll.irrfDeduction, 6);
     expect(result.netTotal).toBeCloseTo(payroll.netSalary, 6);
   });
@@ -55,6 +57,8 @@ describe('calculateVacationPayroll', () => {
     expect(result.proportionalSalary).toBe(0);
     expect(result.grossTotal).toBeCloseTo(vacation.grossVacationTotal, 6);
     expect(result.inssDeduction).toBeCloseTo(vacation.inssDeduction, 6);
+    expect(result.salaryIrrfDeduction).toBe(0);
+    expect(result.vacationIrrfDeduction).toBeCloseTo(vacation.irrfDeduction, 6);
     expect(result.irrfDeduction).toBeCloseTo(vacation.irrfDeduction, 6);
   });
 
@@ -139,7 +143,23 @@ describe('calculateVacationPayroll', () => {
     );
 
     expect(result.inssDeduction).toBeCloseTo(expectedInss, 6);
+    expect(result.salaryIrrfDeduction).toBeCloseTo(expectedSalaryIrrf, 6);
+    expect(result.vacationIrrfDeduction).toBeCloseTo(expectedVacationIrrf, 6);
     expect(result.irrfDeduction).toBeCloseTo(expectedSalaryIrrf + expectedVacationIrrf, 6);
+  });
+
+  it('expõe o IRRF do salário e das férias separadamente no resultado (não só o total)', () => {
+    const result = calculateVacationPayroll({
+      grossSalary: 8475.55,
+      vacationDays: 15,
+      dependents: 0,
+      otherDeductions: 0,
+      anticipateThirteenth: false,
+    });
+
+    expect(result.salaryIrrfDeduction).toBeGreaterThanOrEqual(0);
+    expect(result.vacationIrrfDeduction).toBeGreaterThanOrEqual(0);
+    expect(result.salaryIrrfDeduction + result.vacationIrrfDeduction).toBeCloseTo(result.irrfDeduction, 6);
   });
 
   it('a dedução por dependente vale integralmente tanto no salário quanto nas férias, sem prejuízo mútuo', () => {
