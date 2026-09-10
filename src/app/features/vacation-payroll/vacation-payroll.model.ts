@@ -23,7 +23,19 @@ export interface VacationPayrollResult {
   constitutionalBonus: number;
   /** Base tributável do mês: proportionalSalary + vacationPay + constitutionalBonus. */
   grossTotal: number;
-  /** INSS calculado uma única vez sobre `grossTotal`, respeitando um único teto de contribuição. */
+  /**
+   * INSS sobre as férias — apurado primeiro, de forma independente
+   * (`calculateINSS(vacationGross)`), como se fosse a única verba do mês.
+   */
+  vacationInssDeduction: number;
+  /**
+   * INSS sobre o salário — apurado depois, pela diferença entre o INSS
+   * do total do mês (férias + salário, já respeitando o teto) e o INSS
+   * já atribuído às férias acima. Isso garante que a soma das duas
+   * partes nunca ultrapasse o teto único de contribuição da competência.
+   */
+  salaryInssDeduction: number;
+  /** INSS total do mês (vacationInssDeduction + salaryInssDeduction), respeitando um único teto de contribuição. */
   inssDeduction: number;
   /** IRRF apurado sobre a parte do salário (dias trabalhados), separado das férias (RIR/2018, art. 625). */
   salaryIrrfDeduction: number;
@@ -32,7 +44,11 @@ export interface VacationPayrollResult {
   /** Total de IRRF do mês (salaryIrrfDeduction + vacationIrrfDeduction). */
   irrfDeduction: number;
   otherDeductions: number;
-  /** Líquido do mês (grossTotal - INSS - IRRF - outros descontos). */
+  /** Férias líquidas (vacationGross - vacationInssDeduction - vacationIrrfDeduction). */
+  netVacation: number;
+  /** Salário líquido (proportionalSalary - salaryInssDeduction - salaryIrrfDeduction - outros descontos). */
+  netSalary: number;
+  /** Líquido do mês (netVacation + netSalary). */
   netTotal: number;
   /** 1ª parcela do 13º (50% do salário bruto), sem descontos — só se antecipada. */
   thirteenthAdvance: number;

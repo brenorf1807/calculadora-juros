@@ -31,10 +31,14 @@ describe('calculateVacationPayroll', () => {
     const payroll = calculatePayroll({ grossSalary: 5000, dependents: 2, otherDeductions: 100 });
 
     expect(result.grossTotal).toBeCloseTo(5000, 6);
+    expect(result.vacationInssDeduction).toBe(0);
+    expect(result.salaryInssDeduction).toBeCloseTo(payroll.inssDeduction, 6);
     expect(result.inssDeduction).toBeCloseTo(payroll.inssDeduction, 6);
     expect(result.salaryIrrfDeduction).toBeCloseTo(payroll.irrfDeduction, 6);
     expect(result.vacationIrrfDeduction).toBe(0);
     expect(result.irrfDeduction).toBeCloseTo(payroll.irrfDeduction, 6);
+    expect(result.netVacation).toBe(0);
+    expect(result.netSalary).toBeCloseTo(payroll.netSalary, 6);
     expect(result.netTotal).toBeCloseTo(payroll.netSalary, 6);
   });
 
@@ -56,10 +60,14 @@ describe('calculateVacationPayroll', () => {
     expect(result.workedDays).toBe(0);
     expect(result.proportionalSalary).toBe(0);
     expect(result.grossTotal).toBeCloseTo(vacation.grossVacationTotal, 6);
+    expect(result.vacationInssDeduction).toBeCloseTo(vacation.inssDeduction, 6);
+    expect(result.salaryInssDeduction).toBe(0);
     expect(result.inssDeduction).toBeCloseTo(vacation.inssDeduction, 6);
     expect(result.salaryIrrfDeduction).toBe(0);
     expect(result.vacationIrrfDeduction).toBeCloseTo(vacation.irrfDeduction, 6);
     expect(result.irrfDeduction).toBeCloseTo(vacation.irrfDeduction, 6);
+    expect(result.netSalary).toBe(0);
+    expect(result.netVacation).toBeCloseTo(vacation.netVacationPay, 6);
   });
 
   it('respeita um único teto do INSS sobre o total do mês, mesmo perto do limite', () => {
@@ -76,6 +84,32 @@ describe('calculateVacationPayroll', () => {
     // então o INSS não pode passar do valor máximo da tabela.
     expect(result.grossTotal).toBeGreaterThan(ceiling);
     expect(result.inssDeduction).toBeCloseTo(calculateINSS(ceiling), 6);
+  });
+
+  it('calcula o INSS de forma incremental: férias primeiro (independente), salário pela diferença até o teto', () => {
+    const grossSalary = 8475.55; // no teto
+    const vacationDays = 15;
+
+    const result = calculateVacationPayroll({
+      grossSalary,
+      vacationDays,
+      dependents: 0,
+      otherDeductions: 0,
+      anticipateThirteenth: false,
+    });
+
+    const proportionalSalary = (grossSalary / 30) * (30 - vacationDays);
+    const vacationPay = (grossSalary / 30) * vacationDays;
+    const vacationGross = vacationPay + vacationPay / 3;
+    const grossTotal = proportionalSalary + vacationGross;
+
+    const expectedVacationInss = calculateINSS(vacationGross);
+    const expectedSalaryInss = calculateINSS(grossTotal) - expectedVacationInss;
+
+    expect(result.vacationInssDeduction).toBeCloseTo(expectedVacationInss, 6);
+    expect(result.salaryInssDeduction).toBeCloseTo(expectedSalaryInss, 6);
+    // A soma das duas partes nunca ultrapassa o teto único da competência.
+    expect(result.vacationInssDeduction + result.salaryInssDeduction).toBeCloseTo(calculateINSS(grossTotal), 6);
   });
 
   it('o INSS unificado é menor do que somar Salário e Férias calculados separadamente perto do teto', () => {
@@ -238,8 +272,12 @@ describe('calculateVacationPayroll', () => {
     });
 
     expect(result.grossTotal).toBe(0);
+    expect(result.vacationInssDeduction).toBe(0);
+    expect(result.salaryInssDeduction).toBe(0);
     expect(result.inssDeduction).toBe(0);
     expect(result.irrfDeduction).toBe(0);
+    expect(result.netVacation).toBe(0);
+    expect(result.netSalary).toBe(0);
     expect(result.thirteenthAdvance).toBe(0);
     expect(result.totalReceivable).toBe(0);
   });

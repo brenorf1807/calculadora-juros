@@ -125,13 +125,19 @@ diferentes para o mês em que há férias:
   sua própria dedução por dependente (a dedução vale integralmente nas duas contas, sem prejuízo
   mútuo). Somar as duas bases antes de aplicar a tabela do IRRF está errado.
 
-A calculadora `vacation-payroll` (`/mes-de-ferias`) implementa as duas regras: o INSS efetivamente
-descontado do contracheque é apurado uma única vez sobre o total do mês (com o teto único). Já para
-calcular o IRRF, o INSS usado como dedução é **recalculado de forma independente** para cada parte
-(salário e férias) — não é rateado a partir do INSS único acima. Isso faz o IRRF de cada parte bater
-exatamente com o que as calculadoras de Salário Líquido e de Férias isoladas dariam para os mesmos
-valores, o que é o comportamento esperado (e foi validado comparando diretamente com essas duas
-calculadoras nos testes).
+A calculadora `vacation-payroll` (`/mes-de-ferias`) implementa as duas regras, e expõe férias e
+salário como valores líquidos separados (`netVacation` e `netSalary`):
+
+- **INSS efetivamente descontado**: calculado de forma **incremental** — primeiro o INSS das férias,
+  de forma independente (como se fossem a única remuneração do mês); depois o INSS do salário, pela
+  diferença entre o INSS do total acumulado (férias + salário, já com o teto aplicado) e o INSS já
+  atribuído às férias. Isso garante que a soma das duas partes nunca ultrapasse o teto único da
+  competência, diferente de um rateio proporcional (que dividiria o teto por percentual) ou de duas
+  apurações independentes (que somadas poderiam ultrapassar o teto).
+- **IRRF**: para cada parte, o INSS usado como dedução da base é **recalculado de forma independente**
+  sobre aquela parte (não é o INSS incremental acima) — é assim que o IRRF de cada parte bate
+  exatamente com o que as calculadoras de Salário Líquido e de Férias isoladas dariam para os mesmos
+  valores (validado comparando diretamente com essas duas calculadoras nos testes).
 
 Quando o governo publicar novos valores (o que costuma acontecer uma vez por ano), basta atualizar os
 dois arquivos acima com os novos números — nenhuma lógica de cálculo precisa mudar. Se um dia surgir

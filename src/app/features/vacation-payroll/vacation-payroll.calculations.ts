@@ -8,25 +8,28 @@ const DAYS_IN_MONTH = 30;
 /**
  * Função pura de cálculo do mês em que o funcionário sai de férias:
  * salário proporcional aos dias trabalhados + valor das férias + 1/3
- * constitucional.
+ * constitucional, com férias e salário líquidos calculados e exibidos
+ * separadamente.
  *
  * INSS e IRRF seguem regras diferentes aqui, e é importante não
  * confundi-las:
- * - INSS **efetivamente descontado**: uma única apuração sobre o total
- *   do mês (salário + férias + 1/3), respeitando um único teto de
- *   contribuição — é regime de competência, a Previdência trata as duas
- *   verbas como uma remuneração só.
- * - IRRF: a Receita Federal exige o contrário (RIR/2018, art. 625) — o
- *   imposto sobre férias é retido **separado** do imposto sobre o
- *   salário do mesmo mês, cada um com sua própria tabela progressiva,
- *   seu próprio teto de INSS e sua própria dedução por dependente (que
- *   vale integralmente nos dois cálculos, sem prejuízo). Isso inclui o
- *   próprio INSS usado como dedução de cada base: ele é recalculado de
- *   forma independente para cada parte (regime de caixa, exatamente como
- *   fariam as calculadoras de Salário Líquido e de Férias isoladas) —
- *   não é o INSS único rateado entre as partes. Por isso o INSS
- *   efetivamente descontado do contracheque pode ser diferente da soma
- *   dos INSS usados para calcular cada IRRF.
+ * - **INSS**: regime de competência — um único teto de contribuição para
+ *   o mês inteiro (férias + salário). Para dividir esse total entre as
+ *   duas partes, calculamos primeiro o INSS das férias de forma
+ *   independente (como se fossem a única remuneração do mês) e, depois,
+ *   o INSS do salário pela diferença entre o INSS do total acumulado
+ *   (férias + salário, já respeitando o teto) e o INSS já atribuído às
+ *   férias. Isso garante que a soma das duas partes nunca ultrapasse o
+ *   teto único — diferente de simplesmente ratear o total por percentual.
+ * - **IRRF**: a Receita Federal exige o contrário (RIR/2018, art. 625) —
+ *   o imposto sobre férias é retido separado do imposto sobre o salário
+ *   do mesmo mês, cada um com sua própria tabela progressiva e sua
+ *   própria dedução por dependente (que vale integralmente nos dois
+ *   cálculos). Para isso, o IRRF de cada parte usa o INSS **calculado de
+ *   forma independente sobre aquela parte** como dedução (não o INSS
+ *   incremental acima) — é assim que o IRRF de cada parte bate
+ *   exatamente com o que as calculadoras de Salário Líquido e de Férias
+ *   isoladas dariam para os mesmos valores.
  *
  * Não depende do Angular — testável isolada.
  */
@@ -47,15 +50,18 @@ export function calculateVacationPayroll(
   const vacationGross = vacationPay + constitutionalBonus;
   const grossTotal = proportionalSalary + vacationGross;
 
-  // INSS efetivamente descontado: uma única apuração sobre o total do
-  // mês, respeitando um único teto de contribuição.
-  const inssDeduction = calculateINSS(grossTotal, tables);
+  // INSS efetivamente descontado: as férias entram primeiro (de forma
+  // independente) e o salário fica com a diferença até o teto do total
+  // acumulado — nunca ultrapassando o teto único da competência.
+  const vacationInssDeduction = calculateINSS(vacationGross, tables);
+  const salaryInssDeduction = Math.max(0, calculateINSS(grossTotal, tables) - vacationInssDeduction);
+  const inssDeduction = vacationInssDeduction + salaryInssDeduction;
 
   // Para o IRRF, o INSS usado como dedução é recalculado de forma
-  // independente em cada parte (regime de caixa) — não é rateado a
-  // partir do INSS único acima. Isso faz o IRRF de cada parte bater
-  // exatamente com o que as calculadoras de Salário Líquido e de Férias
-  // isoladas dariam para os mesmos valores.
+  // independente em cada parte (regime de caixa) — não é o INSS
+  // incremental acima. Isso faz o IRRF de cada parte bater exatamente
+  // com o que as calculadoras de Salário Líquido e de Férias isoladas
+  // dariam para os mesmos valores.
   const dependentDeduction = dependents * tables.irrf.dependentDeduction;
 
   const inssForSalaryIrrf = calculateINSS(proportionalSalary, tables);
@@ -68,7 +74,10 @@ export function calculateVacationPayroll(
 
   const irrfDeduction = salaryIrrfDeduction + vacationIrrfDeduction;
 
-  const netTotal = grossTotal - inssDeduction - irrfDeduction - otherDeductions;
+  const netVacation = vacationGross - vacationInssDeduction - vacationIrrfDeduction;
+  const netSalary = proportionalSalary - salaryInssDeduction - salaryIrrfDeduction - otherDeductions;
+  const netTotal = netVacation + netSalary;
+
   const thirteenthAdvance = input.anticipateThirteenth ? grossSalary * 0.5 : 0;
   const totalReceivable = netTotal + thirteenthAdvance;
 
@@ -78,17 +87,23 @@ export function calculateVacationPayroll(
     vacationPay,
     constitutionalBonus,
     grossTotal,
+    vacationInssDeduction,
+    salaryInssDeduction,
     inssDeduction,
     salaryIrrfDeduction,
     vacationIrrfDeduction,
     irrfDeduction,
     otherDeductions,
+    netVacation,
+    netSalary,
     netTotal,
     thirteenthAdvance,
     totalReceivable,
     breakdown: [
-      { label: 'Líquido do mês', value: netTotal },
-      { label: 'INSS', value: inssDeduction },
+      { label: 'Líquido férias', value: netVacation },
+      { label: 'Líquido salário', value: netSalary },
+      { label: 'INSS férias', value: vacationInssDeduction },
+      { label: 'INSS salário', value: salaryInssDeduction },
       { label: 'IRRF salário', value: salaryIrrfDeduction },
       { label: 'IRRF férias', value: vacationIrrfDeduction },
       { label: 'Outros descontos', value: otherDeductions },

@@ -6,6 +6,12 @@
   font-size: 0.8rem;
 }
 
+.calculator__subheading {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
 .field--checkbox {
   flex-direction: row;
   align-items: center;
