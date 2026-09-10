@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+.legal {
+  max-width: 720px;
+  margin: 0 auto;
+
+  &__header {
+    margin-bottom: 1.5rem;
+
+    h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.6rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: var(--color-text);
+    line-height: 1.6;
+
+    h2 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0;
+    }
+
+    a {
+      color: var(--color-primary-strong);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+  }
+}

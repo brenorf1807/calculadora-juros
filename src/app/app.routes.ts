@@ -33,6 +33,10 @@ export const routes: Routes = [
     path: 'rescisao',
     loadChildren: () => import('./features/termination/termination.routes').then((m) => m.TERMINATION_ROUTES),
   },
+  {
+    path: 'privacidade',
+    loadComponent: () => import('./features/legal/privacy-page/privacy-page').then((m) => m.PrivacyPage),
+  },
   // Próximos módulos entram aqui seguindo o mesmo padrão de loadChildren.
   { path: '**', redirectTo: '' },
 ];

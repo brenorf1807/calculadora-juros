@@ -1,6 +1,6 @@
 # Calculadora Financeira
 
-Aplicação Angular (standalone components, sem backend) com calculadoras financeiras. Todo cálculo roda 100% no navegador — a única comunicação com um servidor é o Google Analytics (Firebase), usado apenas para métricas de uso do site.
+Aplicação Angular (standalone components, sem backend) com calculadoras financeiras. Todo cálculo roda 100% no navegador — a única comunicação com um servidor é o Google Analytics e, quando habilitado, o Google AdSense, ambos carregados só depois que o usuário aceita o aviso de cookies (veja "Anúncios (Google AdSense)" abaixo).
 
 Calculadoras disponíveis:
 
@@ -22,6 +22,7 @@ A arquitetura foi pensada para crescer: novos módulos (ex.: folha de pagamento 
 - Testes unitários com Jasmine/Karma
 - Firebase (Hosting + Analytics) — configuração em `src/app/core/firebase/`
 - `HttpClient` para buscar as tabelas de INSS/IRRF em tempo de execução (ver seção "Tabelas de INSS/IRRF" abaixo)
+- Google AdSense (opcional, desligado por padrão) — configuração em `src/app/core/ads/`, só ativa depois de configurado e do usuário aceitar o aviso de cookies
 
 ## Rodando localmente
 
@@ -94,6 +95,8 @@ Usando a de juros compostos como referência:
 - `ScheduleTableComponent` — tabela genérica de evolução/amortização mês a mês.
 - `BalanceChartComponent` — gráfico de linha (SVG) para visualizar a evolução de um saldo.
 - `PieChartComponent` — gráfico de pizza (SVG) com legenda, para mostrar a distribuição de um total entre categorias.
+- `AdSlotComponent` — bloco de anúncio do Google AdSense; não renderiza nada enquanto não configurado (ver "Anúncios" abaixo).
+- `CookieConsentBannerComponent` — aviso de cookies (Analytics/AdSense) fixo no rodapé, some após aceitar ou recusar.
 
 ## Tabelas de INSS/IRRF (Salário Líquido e Férias)
 
@@ -149,6 +152,35 @@ sem impacto no resto da calculadora.
 Os valores calculados são estimativas para fins de simulação e não substituem o cálculo oficial da
 folha de pagamento nem a orientação de um contador. Na calculadora de férias, o abono pecuniário
 (venda de até 1/3 dos dias de férias) ainda não está implementado.
+
+## Anúncios (Google AdSense)
+
+O site é 100% estático (sem backend), então a única forma de monetização é anúncios que rodam
+inteiramente no navegador do usuário — Google AdSense. Toda a integração respeita a LGPD: nada de
+Analytics ou AdSense é carregado antes do usuário aceitar o aviso de cookies (`CookieConsentBannerComponent`
++ `ConsentService`, ver `app.ts`).
+
+Como funciona:
+
+- `src/app/core/ads/adsense.config.ts` centraliza a configuração: `ADSENSE_CLIENT_ID` (o Publisher ID
+  da conta, formato `ca-pub-XXXXXXXXXXXXXXXX`) e `ADSENSE_SLOTS` (os IDs dos blocos de anúncio manuais).
+- `isAdsenseConfigured()` só retorna `true` quando o Client ID é real — controla se o script do AdSense
+  é carregado (`adsense-loader.ts`) e se o Auto ads do Google pode veicular anúncios automaticamente
+  pela página.
+- `isSlotConfigured(slotId)` controla, além disso, cada bloco manual (`<app-ad-slot>`, hoje usado no
+  rodapé) individualmente: enquanto o slot ainda for o placeholder, o `AdSlotComponent` não renderiza
+  nada (nem ocupa espaço), mesmo com o Client ID já configurado.
+
+O Client ID da conta já está configurado neste projeto. Para ativar o bloco de anúncio manual do
+rodapé (ou criar novos blocos em outras páginas):
+
+1. Criar o bloco de anúncio (ad unit) no [painel do AdSense](https://www.google.com/adsense/).
+2. Colocar o ID gerado em `ADSENSE_SLOTS` (`adsense.config.ts`).
+3. Atualizar `public/ads.txt` com a linha exata que o painel do AdSense fornece
+   (`google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`).
+
+Nenhuma outra mudança de código é necessária — o app volta a fazer o build e o deploy automaticamente
+a cada push em `main`.
 
 ## Deploy automático (Firebase Hosting + GitHub Actions)
 

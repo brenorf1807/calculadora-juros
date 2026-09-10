@@ -20,13 +20,20 @@
   <main class="app-main">
     <div class="container">
       <router-outlet />
+
+      @if (showAdSlot) {
+        <app-ad-slot [slot]="footerAdSlot" />
+      }
     </div>
   </main>
 
   <footer class="app-footer">
     <p>
       Todos os cálculos são feitos localmente no seu navegador, sem backend. Usamos o Google
-      Analytics apenas para entender o uso do site.
+      Analytics e, quando habilitado, o Google AdSense — veja a
+      <a routerLink="/privacidade">política de privacidade</a>.
     </p>
   </footer>
+
+  <app-cookie-consent-banner />
 </div>

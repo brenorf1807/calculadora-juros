@@ -1,0 +1,17 @@
+@if (consentService.consent() === 'unset') {
+  <div class="cookie-banner" role="dialog" aria-label="Aviso de cookies">
+    <p class="cookie-banner__text">
+      Usamos cookies para métricas de uso (Google Analytics) e, quando habilitado, para exibir
+      anúncios (Google AdSense). As calculadoras funcionam normalmente de qualquer forma. Veja a
+      <a routerLink="/privacidade">política de privacidade</a>.
+    </p>
+    <div class="cookie-banner__actions">
+      <button type="button" class="cookie-banner__btn cookie-banner__btn--reject" (click)="consentService.deny()">
+        Recusar
+      </button>
+      <button type="button" class="cookie-banner__btn cookie-banner__btn--accept" (click)="consentService.grant()">
+        Aceitar
+      </button>
+    </div>
+  </div>
+}
