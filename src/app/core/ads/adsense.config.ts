@@ -2,10 +2,11 @@
  * Configuração do Google AdSense.
  *
  * `ADSENSE_CLIENT_ID` já é o Publisher ID real da conta AdSense do site
- * (obtido em https://www.google.com/adsense/), então o script do AdSense
- * já é carregado (depois que o usuário aceita o aviso de cookies — ver
- * `adsense-loader.ts` e o efeito de consentimento em `app.ts`) e o Auto ads
- * do Google já pode veicular anúncios automaticamente.
+ * (obtido em https://www.google.com/adsense/). O script do AdSense em si é
+ * carregado sem esperar consentimento — ver a tag `<script>` em
+ * `src/index.html` — porque o Google exige que ele esteja presente (e sem
+ * gate de clique) em toda página para verificar o site e liberar o Auto
+ * ads. Só o Firebase Analytics fica atrás do aviso de cookies.
  *
  * `ADSENSE_SLOTS` ainda está com um PLACEHOLDER: nenhum bloco de anúncio
  * manual (`<ins class="adsbygoogle">`, usado pelo `AdSlotComponent` no

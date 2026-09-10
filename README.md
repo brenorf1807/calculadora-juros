@@ -1,6 +1,6 @@
 # Calculadora Financeira
 
-Aplicação Angular (standalone components, sem backend) com calculadoras financeiras. Todo cálculo roda 100% no navegador — a única comunicação com um servidor é o Google Analytics e, quando habilitado, o Google AdSense, ambos carregados só depois que o usuário aceita o aviso de cookies (veja "Anúncios (Google AdSense)" abaixo).
+Aplicação Angular (standalone components, sem backend) com calculadoras financeiras. Todo cálculo roda 100% no navegador — a única comunicação com um servidor é o Google AdSense (script sempre presente, exigido pelo Google para verificar o site e exibir anúncios) e o Google Analytics, que só carrega depois que o usuário aceita o aviso de cookies (veja "Anúncios (Google AdSense)" abaixo).
 
 Calculadoras disponíveis:
 
@@ -156,17 +156,23 @@ folha de pagamento nem a orientação de um contador. Na calculadora de férias,
 ## Anúncios (Google AdSense)
 
 O site é 100% estático (sem backend), então a única forma de monetização é anúncios que rodam
-inteiramente no navegador do usuário — Google AdSense. Toda a integração respeita a LGPD: nada de
-Analytics ou AdSense é carregado antes do usuário aceitar o aviso de cookies (`CookieConsentBannerComponent`
-+ `ConsentService`, ver `app.ts`).
+inteiramente no navegador do usuário — Google AdSense.
+
+O script do AdSense (`src/index.html`, tag `<script>` no `<head>`) carrega em toda visita, sem
+esperar o aviso de cookies — é uma exigência do próprio Google: o verificador de sites do AdSense
+não interage com a página, então um script que só carrega depois de um clique em "Aceitar" nunca é
+detectado, e a verificação/aprovação da conta fica pendente indefinidamente. O Google Analytics
+continua respeitando a LGPD normalmente: só carrega depois que o usuário aceita o aviso de cookies
+(`CookieConsentBannerComponent` + `ConsentService`, ver `app.ts`). Isso está documentado na página
+`/privacidade`.
 
 Como funciona:
 
 - `src/app/core/ads/adsense.config.ts` centraliza a configuração: `ADSENSE_CLIENT_ID` (o Publisher ID
-  da conta, formato `ca-pub-XXXXXXXXXXXXXXXX`) e `ADSENSE_SLOTS` (os IDs dos blocos de anúncio manuais).
-- `isAdsenseConfigured()` só retorna `true` quando o Client ID é real — controla se o script do AdSense
-  é carregado (`adsense-loader.ts`) e se o Auto ads do Google pode veicular anúncios automaticamente
-  pela página.
+  da conta, formato `ca-pub-XXXXXXXXXXXXXXXX` — precisa bater com o da tag `<script>` em
+  `src/index.html`) e `ADSENSE_SLOTS` (os IDs dos blocos de anúncio manuais).
+- `isAdsenseConfigured()` só retorna `true` quando o Client ID é real — hoje já é (o Auto ads do
+  Google já pode veicular anúncios automaticamente pela página assim que a conta for aprovada).
 - `isSlotConfigured(slotId)` controla, além disso, cada bloco manual (`<app-ad-slot>`, hoje usado no
   rodapé) individualmente: enquanto o slot ainda for o placeholder, o `AdSlotComponent` não renderiza
   nada (nem ocupa espaço), mesmo com o Client ID já configurado.

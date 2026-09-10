@@ -2,7 +2,6 @@ import { Component, effect, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { ADSENSE_SLOTS, isAdsenseConfigured } from './core/ads/adsense.config';
-import { loadAdsenseScript } from './core/ads/adsense-loader';
 import { initializeFirebaseAnalytics } from './core/firebase/firebase-analytics';
 import { ConsentService } from './core/services/consent.service';
 import { AdSlotComponent } from './shared/ui/ad-slot/ad-slot';
@@ -31,12 +30,13 @@ export class App {
   protected readonly footerAdSlot = ADSENSE_SLOTS.footer;
 
   constructor() {
-    // Firebase Analytics e AdSense só carregam depois que o usuário
-    // aceita o aviso de cookies (ConsentService) — nunca antes disso.
+    // O script do AdSense já carrega sem esperar consentimento (ver
+    // src/index.html) — é exigido pelo Google para verificar o site e
+    // liberar o Auto ads. Só o Firebase Analytics fica atrás do aviso de
+    // cookies (ConsentService).
     effect(() => {
       if (this.consentService.consent() === 'granted') {
         initializeFirebaseAnalytics();
-        loadAdsenseScript();
       }
     });
   }

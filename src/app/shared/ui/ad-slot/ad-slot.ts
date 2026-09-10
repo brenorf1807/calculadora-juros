@@ -2,6 +2,12 @@ import { AfterViewInit, Component, computed, input } from '@angular/core';
 
 import { ADSENSE_CLIENT_ID, isSlotConfigured } from '../../../core/ads/adsense.config';
 
+declare global {
+  interface Window {
+    adsbygoogle?: unknown[];
+  }
+}
+
 /**
  * Bloco de anúncio do Google AdSense, reutilizável em qualquer página.
  * Não renderiza nada (nem consome espaço) enquanto o bloco de anúncio não
