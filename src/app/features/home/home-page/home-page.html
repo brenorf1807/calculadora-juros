@@ -6,18 +6,30 @@
 
   <div class="home__grid">
     @for (calculator of calculators; track calculator.title) {
-      @if (calculator.route) {
-        <a class="calculator-card" [routerLink]="calculator.route">
-          <h2 class="calculator-card__title">{{ calculator.title }}</h2>
-          <p class="calculator-card__description">{{ calculator.description }}</p>
-        </a>
-      } @else {
-        <div class="calculator-card calculator-card--disabled">
-          <span class="calculator-card__badge">Em breve</span>
-          <h2 class="calculator-card__title">{{ calculator.title }}</h2>
-          <p class="calculator-card__description">{{ calculator.description }}</p>
-        </div>
-      }
+      <a class="calculator-card" [routerLink]="calculator.route">
+        <h2 class="calculator-card__title">{{ calculator.title }}</h2>
+        <p class="calculator-card__description">{{ calculator.description }}</p>
+      </a>
     }
+  </div>
+
+  <div class="home__about">
+    <h2>Sobre a Calculadora Financeira</h2>
+    <p>
+      Este site reúne seis calculadoras gratuitas: duas de finanças pessoais (juros compostos e
+      financiamento pela Tabela Price ou pelo SAC) e quatro de folha de pagamento e direitos
+      trabalhistas brasileiros (salário líquido, férias, o mês combinado de salário com férias e
+      rescisão de contrato). Todas rodam inteiramente no seu navegador — nenhum valor que você digita
+      é enviado a um servidor — e usam as tabelas vigentes de INSS e IRRF, incluindo o redutor da Lei
+      15.270/2025.
+    </p>
+    <p>
+      As calculadoras trabalhistas nasceram de um problema comum: simuladores prontos costumam
+      calcular férias e salário de forma isolada, o que ignora o teto único de contribuição do INSS
+      quando os dois caem no mesmo mês (e pode superestimar o desconto) ou soma as duas bases para o
+      IRRF, o que a legislação não permite (art. 625 do RIR/2018 exige apuração separada). A
+      calculadora "Mês de Férias" resolve isso calculando o INSS uma única vez sobre o total do mês e
+      o IRRF separadamente para cada parte.
+    </p>
   </div>
 </section>

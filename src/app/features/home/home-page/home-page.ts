@@ -4,14 +4,12 @@ import { RouterLink } from '@angular/router';
 interface CalculatorSummary {
   title: string;
   description: string;
-  route?: string;
-  comingSoon?: boolean;
+  route: string;
 }
 
 /**
- * Lista as calculadoras disponíveis (e as futuras, marcadas como
- * "em breve"). Ao adicionar um novo módulo — ex.: folha de pagamento —
- * basta incluir uma nova entrada aqui com sua rota.
+ * Lista as calculadoras disponíveis. Ao adicionar um novo módulo, basta
+ * incluir uma nova entrada aqui com sua rota.
  */
 @Component({
   selector: 'app-home-page',
@@ -51,11 +49,6 @@ export class HomePage {
       title: 'Rescisão',
       description: 'Verbas rescisórias para os 4 motivos mais comuns de desligamento, com INSS e IRRF corretos.',
       route: '/rescisao',
-    },
-    {
-      title: 'Folha de Pagamento Completa',
-      description: 'Cálculo de FGTS e demais encargos da folha de pagamento.',
-      comingSoon: true,
     },
   ];
 }
